@@ -1,7 +1,24 @@
-
 # About the project
 
 *Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
+
+> How are you feeling right now?
+
+Apprehensive about the uncertainties of the future.
+
+> What do you expect to learn?
+
+Basic R tasks.
+
+> Where did you hear about the course?
+
+Sisu.
+
+It seems the book has a lot of content, probably quite useful.
+
+I'm familiar with Markdown but not with R.
+
+Repo link: <https://github.com/gartenfeld/IODS-project>
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
@@ -9,5 +26,5 @@
 date()
 
 ```
-The text continues here.
 
+The text continues here.
