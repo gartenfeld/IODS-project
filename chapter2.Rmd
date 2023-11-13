@@ -1,13 +1,95 @@
-# Insert chapter 2 title here
+# Wrangle & Analyse
 
-*Describe the work you have done this week and summarize your learning.*
+*This week we follow through the examples in Exercise Set 2 and learn about how to do linear regression and beyond with R.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+A few words about the data set:
+
+-   Assuming that you the reader have no no previous knowledge of the data -- don't worry, neither had I just a few minutes ago -- from the appearance of it, there was a survey about study methods and "attitude" survey filled in by just under 200 Finnish pre-retirees. There were also exam points, so they were perhaps also given some kind of tests. More details [here](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS2-meta.txt).
+
+-   Given the schema of the data, now reverse-guessing the possible hypotheses, it's possible that the claim was some attitude or strategy predicted exam scores. That's kind of reasonable, maybe people who believe stats can*"hyötyä"* would score higher than people who don't believe that.
 
 ```{r}
 date()
 ```
 
-Here we go again...
+### Step 1: Read the data
+
+```{r}
+library(readr)
+data <- read_csv('data/learning_2014.csv')
+str(data)
+dim(data)
+```
+
+The data contains 166 survey responses. Each response contains 7 columns (variables), namely: gender, age of the participant, attitude score (being the average of 10 attitude questions about attitudes towards learning about statistics), deep/surface/strategic metrics (the average of different categories of questions related to learning approaches or methods) -- see more details in this [document](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS3-meta.txt) and the points from some exam or test.
+
+So the general gist is -- you may have guessed it -- what influences study outcomes in statistics? Is it attitude towards learning? Is it approach and life hacks in learning? Let's find out.
+
+### Step 2: Graphical overview
+
+"Show a graphical overview", a "plot of everything":
+```{r}
+library(GGally)
+library(ggplot2)
+p <- ggpairs(data, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+The histograms (on the left-hand side) are quite useful for showing the distributions, we can see for example at a glance there are actually a lot of younger students who answered the survey, even though the first few rows have older people.
+
+The box plots show how gender correlate with the other variables.
+
+The scatter plots are not so easy for humans to eyeball the trends.
+
+But, what's most interesting for us may be the vertical strip of printouts where "points" correlate with other variables.
+
+### Step 3: Fit a model
+
+Let's pick the three largest values: `attitude`, `stra`, `surf`
+
+
+```{r}
+library(ggplot2)
+p1 <- ggplot(data, aes(x = attitude, y = points))
+p2 <- p1 + geom_point()
+p2
+```
+
+Seems a bit all over the place. Let's add a regression line:
+
+```{r}
+p3 <- p2 + geom_smooth(method = "lm")
+# Draw plot
+p3
+```
+
+Now, onto fitting a regression model with all three variables!
+```{r}
+multi_model <- lm(points ~ attitude + stra + surf, data = data)
+multi_model
+```
+### Step 4: Interpretation
+
+Looking at the fitted coefficients (r-squareds), attitude has a big influence, stra has a much smaller influence, surf has a smaller still and negative influence.
+
+
+### Step 5: Graphical validation
+
+```{r}
+# Residuals vs Fitted values (1)
+p_a = plot(multi_model, which = 1)
+```
+
+
+
+```{r}
+# Normal QQ-plot (2)
+p_b = plot(multi_model, which = 2)
+```
+
+
+```{r}
+# Residuals vs Leverage (5)
+p_c = plot(multi_model, which = 5)
+```
+
+The assumption of the model is that attitude, stra, and surf influence points. Looking at the visual output, it's not conclusively clear-cut.
