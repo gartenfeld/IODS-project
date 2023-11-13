@@ -409,7 +409,7 @@ use R Markdown syntax.</em></p>
 <pre class="r"><code># This is a so-called &quot;R chunk&quot; where you can write R code.
 
 date()</code></pre>
-<pre><code>## [1] &quot;Mon Nov 13 17:35:06 2023&quot;</code></pre>
+<pre><code>## [1] &quot;Mon Nov 13 17:41:04 2023&quot;</code></pre>
 <p>The text continues here.</p>
 <hr />
 </div>
@@ -432,7 +432,7 @@ believe stats can<em>“hyötyä”</em> would score higher than people who
 don’t believe that.</p></li>
 </ul>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Mon Nov 13 17:35:06 2023&quot;</code></pre>
+<pre><code>## [1] &quot;Mon Nov 13 17:41:04 2023&quot;</code></pre>
 <div id="step-1-read-the-data" class="section level3">
 <h3>Step 1: Read the data</h3>
 <pre class="r"><code>library(readr)
@@ -568,6 +568,11 @@ include:</p>
 <li>Errors have constant variance</li>
 <li>X to mean Y is linear</li>
 </ul>
+<p>These are basically saying that the overall assumption of a linear
+model is that there is a linear relationship between the distribution of
+the outcome dots and the input 🤷‍♀️ Yeah, sounds tautological but a
+(sp)line only makes sense if a plausible underlying causal line exists…
+And when it does exist the dots tend to have a evenly spread shape.</p>
 <p>The quantile-quantile looks pretty close to the prediction. Residuals
 seem quite evenly spread across, maybe slightly top-heavy. There are a
 bunch of points that have high leverage/influence on the outcome.</p>

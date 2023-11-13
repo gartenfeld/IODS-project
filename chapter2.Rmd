@@ -99,4 +99,6 @@ According to the internet, the assumptions of a linear model include:
 -   Errors have constant variance
 -   X to mean Y is linear
 
+These are basically saying that the overall assumption of a linear model is that there is a linear relationship between the distribution of the outcome dots and the input 🤷‍♀️ Yeah, sounds tautological but a (sp)line only makes sense if a plausible underlying causal line exists... And when it does exist the dots tend to have a evenly spread shape.
+
 The quantile-quantile looks pretty close to the prediction. Residuals seem quite evenly spread across, maybe slightly top-heavy. There are a bunch of points that have high leverage/influence on the outcome.
