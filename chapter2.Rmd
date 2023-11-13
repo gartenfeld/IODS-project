@@ -1,4 +1,4 @@
-# Wrangle & Analyse
+# Week 2: Wrangle & Analyse
 
 *This week we follow through the examples in Exercise Set 2 and learn about how to do linear regression and beyond with R.*
 
@@ -28,12 +28,14 @@ So the general gist is -- you may have guessed it -- what influences study outco
 ### Step 2: Graphical overview
 
 "Show a graphical overview", a "plot of everything":
-```{r}
+
+```{r message = FALSE}
 library(GGally)
 library(ggplot2)
 p <- ggpairs(data, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
 p
 ```
+
 The histograms (on the left-hand side) are quite useful for showing the distributions, we can see for example at a glance there are actually a lot of younger students who answered the survey, even though the first few rows have older people.
 
 The box plots show how gender correlate with the other variables.
@@ -46,9 +48,7 @@ But, what's most interesting for us may be the vertical strip of printouts where
 
 Let's pick the three largest values: `attitude`, `stra`, `surf`
 
-
 ```{r}
-library(ggplot2)
 p1 <- ggplot(data, aes(x = attitude, y = points))
 p2 <- p1 + geom_point()
 p2
@@ -63,14 +63,16 @@ p3
 ```
 
 Now, onto fitting a regression model with all three variables!
+
 ```{r}
 multi_model <- lm(points ~ attitude + stra + surf, data = data)
 multi_model
+summary(multi_model)
 ```
+
 ### Step 4: Interpretation
 
 Looking at the fitted coefficients (r-squareds), attitude has a big influence, stra has a much smaller influence, surf has a smaller still and negative influence.
-
 
 ### Step 5: Graphical validation
 
@@ -79,13 +81,10 @@ Looking at the fitted coefficients (r-squareds), attitude has a big influence, s
 p_a = plot(multi_model, which = 1)
 ```
 
-
-
 ```{r}
 # Normal QQ-plot (2)
 p_b = plot(multi_model, which = 2)
 ```
-
 
 ```{r}
 # Residuals vs Leverage (5)
