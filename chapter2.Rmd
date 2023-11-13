@@ -91,4 +91,12 @@ p_b = plot(multi_model, which = 2)
 p_c = plot(multi_model, which = 5)
 ```
 
-The assumption of the model is that attitude, stra, and surf influence points. Looking at the visual output, it's not conclusively clear-cut.
+According to the internet, the assumptions of a linear model include:
+
+-   Outcome variables have errors, X is fixed
+-   Errors are independent
+-   Errors distribute normally
+-   Errors have constant variance
+-   X to mean Y is linear
+
+The quantile-quantile looks pretty close to the prediction. Residuals seem quite evenly spread across, maybe slightly top-heavy. There are a bunch of points that have high leverage/influence on the outcome.
