@@ -1,5 +1,10 @@
+# Name: David Rosson
+# Date: 13.09.2023
+# File description: R script for Assignment 2
+# Data source: http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt
+
 # Read the full learning2014 data into a data frame
-learning_2014_data <- read.table("http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt", sep="\t", header=TRUE)
+learning_2014_data <- read.table("http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt", sep = "\t", header = TRUE)
 
 # Look at the structure of the data
 str(learning_2014_data)
@@ -18,36 +23,36 @@ dim(learning_2014_data)
 # `Attitude` is the sum of scores from 10 questions
 learning_2014_data$Attitude
 
-# The instructions suggest you could "scale" the sum score 
+# The instructions suggest you could "scale" the sum score
 # back to an "original" scale by dividing it by the number of questions
 # Store the reverse-split values in a new column with lowercase name
 learning_2014_data$attitude <- learning_2014_data$Attitude / 10
 
 # Create combo variables
 # questions related to deep, surface and strategic learning
-deep_questions <- c("D03", "D11", "D19", "D27", "D07", "D14", "D22", "D30","D06",  "D15", "D23", "D31")
-surf_questions <- c("SU02","SU10","SU18","SU26", "SU05","SU13","SU21","SU29","SU08","SU16","SU24","SU32")
-stra_questions <- c("ST01","ST09","ST17","ST25","ST04","ST12","ST20","ST28")
+deep_questions <- c("D03", "D11", "D19", "D27", "D07", "D14", "D22", "D30", "D06", "D15", "D23", "D31")
+surf_questions <- c("SU02", "SU10", "SU18", "SU26", "SU05", "SU13", "SU21", "SU29", "SU08", "SU16", "SU24", "SU32")
+stra_questions <- c("ST01", "ST09", "ST17", "ST25", "ST04", "ST12", "ST20", "ST28")
 
 # Below the "scaling back" is done within the same step by taking the mean
 
-# select the columns related to deep learning 
+# select the columns related to deep learning
 deep_columns <- select(learning_2014_data, one_of(deep_questions))
 # and create column 'deep' by averaging
 learning_2014_data$deep <- rowMeans(deep_columns)
 
-# select the columns related to surface learning 
+# select the columns related to surface learning
 surf_columns <- select(learning_2014_data, one_of(surf_questions))
 # and create column 'surf' by averaging
 learning_2014_data$surf <- rowMeans(surf_columns)
 
-# select the columns related to strategic learning 
+# select the columns related to strategic learning
 stra_columns <- select(learning_2014_data, one_of(stra_questions))
 # and create column 'stra' by averaging
 learning_2014_data$stra <- rowMeans(stra_columns)
 
 # Keep the columns named in the instructions
-kept_columns <- c("gender","Age","attitude", "deep", "stra", "surf", "Points")
+kept_columns <- c("gender", "Age", "attitude", "deep", "stra", "surf", "Points")
 learning_2014 <- select(learning_2014_data, one_of(kept_columns))
 
 dim(learning_2014)
@@ -77,14 +82,14 @@ dim(filtered)
 
 # Write the data to a CSV
 library(readr)
-write_csv(filtered, 'data/learning_2014.csv')
+write_csv(filtered, "data/learning_2014.csv")
 
 # Test loading data from CSV file
-wrangled <- read_csv('data/learning_2014.csv')
+wrangled <- read_csv("data/learning_2014.csv")
 
 # Check data shape
 str(wrangled)
-# spc_tbl_ [166 × 7] 
+# spc_tbl_ [166 × 7]
 
 head(wrangled)
 # gender   age attitude  deep  stra  surf points
