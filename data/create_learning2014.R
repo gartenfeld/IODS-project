@@ -94,3 +94,5 @@ head(wrangled)
 # 3 F         49      2.5  3.5   3.62  2.25     24
 
 # Looks legit!
+
+# For Part 2: "Analysis", see course diary file `../chapter2.Rmd` per instructions
