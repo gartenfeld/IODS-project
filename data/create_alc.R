@@ -1,7 +1,8 @@
 # Name: David Rosson
 # Date: 14.09.2023
 # File description: R script for Assignment 3
-# Data source: http://www.archive.ics.uci.edu/dataset/320/student+performance
+# Data source: UCI Machine Learning Repository
+# http://www.archive.ics.uci.edu/dataset/320/student+performance
 
 # During the data wrangling exercises you will join together two data sets. This will provide you with a non-trivial example of joining together data from different sources for further analysis.
 
