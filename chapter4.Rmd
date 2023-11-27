@@ -1,0 +1,249 @@
+# Week 4
+
+*This week we follow through the examples in Exercise Set 4.*
+
+```{r}
+date()
+```
+
+------------------------------------------------------------------------
+
+### Step 1
+
+Create this file and include it in `index.Rmd`.
+
+### Step 2
+
+> "Load the Boston data from the MASS package"
+
+```{r}
+# Load MASS package
+library(MASS)
+data("Boston")
+```
+
+> "Explore the structure and the dimensions of the data"
+
+```{r}
+str(Boston)
+dim(Boston)
+```
+
+> "Describe the dataset briefly, assuming the reader has no previous knowledge of it."
+
+The dataset comes from a study by Harrison and Rubinfeld (1978) on house prices in Boston suburbs. It's commonly used for teaching stats (specifically regression analysis, often called "machine learning" these days) by examples of predicting real estate prices from a number of demographic and socio-economic factors. The dataset contains 506 observations (rows) and 13 predictor variables plus the dependent variable (`medv`, **med**ian **v**alue of owner-occupied homes). See [documentation](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html).
+
+### Step 3
+
+> "Show a graphical overview of the data"
+
+```{r message = FALSE}
+library(GGally)
+library(ggplot2)
+library(dplyr)
+p <- ggpairs(Boston)
+p
+```
+
+```{r}
+cor_matrix <- cor(Boston) %>% round(digits = 2)
+library(corrplot)
+corrplot(cor_matrix, method="circle", diag = FALSE, type = 'lower')
+```
+
+> "Show summaries of the variables in the data"
+
+```{r}
+summary(Boston)
+```
+
+> "Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them.
+
+Looking at the bottom row `medv` as an example, we can see that `rm` ("average number of rooms per dwelling") is strongly positively correlated with `medv` and that `lstat` ("lower status of the population in %") is strongly negatively correlated. This is not surprising simply from reading the variable descriptions, that is, they are re-stating intuitive claims such as "larger houses cost more", "poor people live in cheap neighbourhoods".
+
+### Step 4
+
+> "Standardize the dataset and print out summaries of the scaled data."
+
+```{r}
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+```
+> "How did the variables change?"
+
+They are now how many standard deviations either side, general 0 to 3, 3+ being the extremes.
+
+> "Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate)."
+
+```{r}
+boston_scaled <- as.data.frame(boston_scaled)
+boston_scaled$crim <- as.numeric(boston_scaled$crim)
+bins <- quantile(boston_scaled$crim)
+```
+
+> "Use the quantiles as the break points in the categorical variable."
+
+```{r}
+quantile_labels <- c("low", "med_low", "med_high", "high")
+crime <- cut(boston_scaled$crim, breaks = bins, labels = quantile_labels, include.lowest = TRUE)
+boston_scaled <- data.frame(boston_scaled, crime)
+```
+
+> "Drop the old crime rate variable from the dataset."
+
+```{r}
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+```
+
+> "Divide the dataset to train and test sets, so that 80% of the data belongs to the train set."
+
+```{r}
+num_observations <- nrow(boston_scaled)
+sample_ids <- sample(num_observations,  size = num_observations * 0.8)
+train_set <- boston_scaled[sample_ids,]
+test_set <- boston_scaled[-sample_ids,]
+```
+
+# Step 5
+
+```{r}
+# the function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  graphics::arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+```
+
+> "Fit the linear discriminant analysis on the train set. Use the categorical crime rate as the target variable and all the other variables in the dataset as predictor variables."
+
+```{r}
+# `crime` as the target variable, and "." (all the others) as predicators
+lda.fit <- lda(crime ~ ., data = train_set)
+classes <- as.numeric(train_set$crime)
+```
+
+> "Draw the LDA biplot."
+
+```{r}
+plot(lda.fit, dimen = 2)
+lda.arrows(lda.fit, myscale = 1)
+```
+
+
+### Step 6
+
+> "Save the crime categories from the test set"
+
+```{r}
+correct_crime_level_predictions <- test_set$crime
+```
+
+> "Remove the categorical crime variable from the test dataset."
+
+```{r}
+test_set <- dplyr::select(test_set, -crime)
+```
+
+> "Then predict the classes with the LDA model on the test data."
+
+```{r}
+lda.pred <- predict(lda.fit, newdata = test_set)
+```
+
+> "Cross tabulate the results with the crime categories from the test set."
+
+```{r}
+table(correct = correct_crime_level_predictions, predicted = lda.pred$class)
+```
+> "Comment on the results."
+
+Low crime areas are vert accurately predicted, 19 are really low, the other 1 medium low. Similar comments for high crime predictions, 26 spot on, 3 in adjacent category. The two categories in the middle got sometimes more mixed up either way, around 2/3 of the time correct.
+
+### Step 7
+
+> "Reload the Boston dataset."
+
+```{r}
+library(MASS)
+data("Boston")
+```
+
+
+> "Scale the variables to get comparable distances."
+
+```{r}
+boston_scaled <- scale(Boston)
+```
+
+> "Calculate the distances between the observations."
+
+```{r}
+dist_eu <- dist(boston_scaled)
+```
+
+> "Run k-means algorithm on the dataset."
+
+```{r}
+km <- kmeans(boston_scaled, centers = 4)
+```
+
+> "Investigate what is the optimal number of clusters and run the algorithm again."
+
+```{r}
+set.seed(42)
+
+k_max <- 10
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled, k)$tot.withinss})
+
+# Spot the cliff
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+> "Visualize the clusters"
+
+```{r}
+km <- kmeans(boston_scaled, centers = 2)
+pairs(boston_scaled, col = km$cluster)
+```
+
+> "Interpret the results"
+
+The idea of clustering observations into groups is predicated on the notion that there are natural or hidden categories in the observations, namely, we could ask "how many types of suburbs are there?" The grouping is easily spotted visually when -- for simplicity's sake, let's imagine two classes -- two classes have metrics that are well away from each other. We can then see on a scatter plot that one group is over here in one corner, and the other group is way over there in an opposite corner. In terms referred to in the above steps, that there is a great distance between those two clouds. Here we have more than 2 dimensions, we have a dozen or so variables, but that's not a problem for the machine, similar principles apply -- that is, we try to find groups that have centres away from each other, all these dimensions considered. The chart is a bit hard to read but upon zooming it you could see that sometimes the groups are more distinct.
+
+### Extra
+
+> "Perform k-means on the original Boston data with some reasonable number of clusters (> 2)."
+
+```{r}
+km <- kmeans(boston_scaled, centers = 3)
+```
+
+> "Then perform LDA using the clusters as target classes."
+
+```{r}
+cluster <- km$cluster
+boston_scaled <- data.frame(boston_scaled, cluster)
+```
+
+```{r}
+summary(boston_scaled)
+```
+
+> "Visualize the results with a bi-plot."
+
+```{r}
+lda.fit <- lda(cluster ~ ., data = boston_scaled[, -4])
+plot(lda.fit, dimen = 2)
+lda.arrows(lda.fit, myscale = 1)
+```
+> "Interpret the results. Which variables are the most influential linear separators for the clusters?"
+
+I would say `indus` (proportion of non-retail business acres per town) is useful for separating Group 3 out, and `tax` full-value property-tax rate per $10,000 is useful for distinguishing Group 1 and 2.
+
+---
+
+#### Thank you and see you next week
