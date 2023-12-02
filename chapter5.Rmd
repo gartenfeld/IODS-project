@@ -1,0 +1,63 @@
+# Week 5
+
+*This week we follow through the examples in Exercise Set 5.*
+
+```{r}
+date()
+```
+
+------------------------------------------------------------------------
+
+### Step 0
+
+Create this file and include it in `index.Rmd`.
+
+### Step 1
+
+> "Move the country names to rownames"
+
+> "Show a graphical overview of the data"
+
+> "Show summaries of the variables in the data"
+
+> "Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them"
+
+### Step 2
+
+> "Perform principal component analysis (PCA) on the raw (non-standardized) human data"
+
+> "Show the variability captured by the principal components"
+
+> "Draw a biplot displaying the observations by the first two principal components along with arrows representing the original variables"
+
+### Step 3
+
+> "Standardize the variables in the human data and repeat the above analysis"
+
+> "Interpret the results of both analysis (with and without standardizing)" *"Are the results different? Why or why not?"*
+
+> "Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to"
+
+### Step 4
+
+> "Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data"
+
+### Step 5
+
+> "Load the tea dataset and convert its character variables to factors"
+
+```{r}
+tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
+```
+
+> "Explore the data briefly: look at the structure and the dimensions of the data"
+
+> "Use View(tea) to browse its contents, and visualize the data"
+
+> "Use Multiple Correspondence Analysis (MCA) on the tea data (or a subset of columns)"
+
+> "Interpret the results of the MCA"
+
+> "Draw the variable biplot of the analysis"
+
+> "Comment on the output of the plots"
