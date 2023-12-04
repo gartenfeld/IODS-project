@@ -102,6 +102,8 @@ biplot(pca_human_standardised, choices = 1:2, cex = c(0.8, 1), col = c("grey40",
 
 the unscaled plots are virtually unreadable
 
+because of vastly differing units, GNI is in some kind of dollars so it can get to 200k, where as a ratio is sub-one
+
 
 > "Include captions (brief descriptions) in your plots"
 
