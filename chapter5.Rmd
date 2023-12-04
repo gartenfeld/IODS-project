@@ -7,6 +7,7 @@ date()
 ```
 
 ------------------------------------------------------------------------
+
 ## Analysis
 
 ### Step 0
@@ -16,6 +17,7 @@ Create this file and include it in `index.Rmd`.
 ### Step 1
 
 ```{r}
+library(readr)
 human <- read_csv("data/human.csv", show_col_types = FALSE)
 ```
 
@@ -30,6 +32,7 @@ human <- column_to_rownames(human, "Country")
 
 ```{r}
 library(GGally)
+library(ggplot2)
 ggpairs(human, progress = FALSE)
 ```
 
@@ -39,7 +42,7 @@ ggpairs(human, progress = FALSE)
 summary(human)
 ```
 
-```{r}
+```{r message = FALSE}
 library(corrplot)
 cor(human)
 ```
@@ -50,9 +53,21 @@ correlation_matrix <- cor(human) %>% round(digits = 2)
 corrplot(correlation_matrix, method="circle", diag = FALSE, type = 'lower')
 ```
 
+
+```{r}
+ggplot(human, aes(x = GNI)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7)
+```
+
 > "Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them"
 
-<Interpretations>
+What can we say about the distributions of the variables? It is somewhat reminiscent of Hans Rosling's lectures... And because the hand-picked nature of our basket of variables, it is not surprising the scatter plots show some noticeable patterns. For GNI for example we can see there are a few very rich countries, a bunch of middle-income countries, then many poor countries.
+
+Going from the Rosling perspective (public health and human development), we can see for example that Life Expectancy and Maternal Mortality are strongly correlated, with both being influence by health infrastructure etc. Life Expectancy also correlates with availability of education, which go hand in hand with economic development. We can also see that more women being educated correlate to lower Maternal Mortality as well as teenage birth.
+
+Another interesting distribution is GNI / Parli.F, which shows that although some countries are quite rich, they didn't become more equal, as the scatter shows a fairly normal spread across income levels (side ways), in fact there are a few outliers of very rich countries with almost no female parliamentary representation.
+
+We can see from the correlation matrix that the variables we have selected have a general tendency to overlap with each other strongly, either positively or negatively, not necessarily because they are synonymous or antonymous with each other, but because they reflect different dependent facets of some shared underlying influence or condition. The weak circles (low correlations) are also interesting, for example, improved health development doesn't translate to women working more.
 
 ### Step 2
 
@@ -94,16 +109,17 @@ summary(pca_human_standardised)
 biplot(pca_human_standardised, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
 ```
 
-> "Interpret the results of both analysis (with and without standardizing)" 
+> "Interpret the results of both analysis (with and without standardizing)"
 
 *"Are the results different? Why or why not?"*
 
-<Interpretations>
+The results are very different before and after scaling. The unscaled plots are virtually unreadable. This is more or less expected, because of vastly differing units: GNI is in some kind of dollars so it can get to 200k, where as a ratio is sub-one. The biplot has GNI squashed to a horizontal arrow, so that PC1 repeats GNI.
 
-the unscaled plots are virtually unreadable
+Interpreting the scaled biplot is a lot more sensible. We can see that Life Expectancy, years of educations a child can expect, also female-to-male ratio of achieving secondary education are all correlated with each other and with money, and they are negatively correlated with Maternal Mortality and teenage births. All of these variables have arrows that are close to parallel to PC1.
 
-because of vastly differing units, GNI is in some kind of dollars so it can get to 200k, where as a ratio is sub-one
+Whereas, women in parliament and in workforce are correlated, and close to parallel with PC2.
 
+See more comments below.
 
 > "Include captions (brief descriptions) in your plots"
 
@@ -125,20 +141,13 @@ legend("bottomright", legend = c(
 
 > "Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data"
 
-The principal components can sometimes be hidden factors that do not directly map to a known concept. One can only make rough guesses what kinds of qualities the axes may correspond to, based on heuristics (namely generalisation from pre-loaded perception).
+The principal components can sometimes be hidden factors that do not directly map to a known concept, or sometimes to a very abstract quality or measure that's hard to pin-point, and we cannot over-generalise that it's "richness" or "goodness" or "development". One can only make rough guesses what kinds of qualities the axes may correspond to, based on heuristics (namely generalisation from pre-loaded perception).
 
-points are observations
+In the biplot, the points (labels of country names) are observations mapped  along the 2 main PCs. Points close to each other share similar values as measured by the PC axes. Here, using our preconceived priors as heuristics we can gauge, ah okay, Qatar is on one side and Afghanistan on the other side, so this axis has something to do with rich vs. poor. Then you see the Nordics up there and Iran down there, you wonder if that axis has something to do with the permissiveness towards certain things, which could be bacon for all we know. Here I must apologise for my geographical ignorance that I really don't know what it's qualitatively and subjective like in those poorer countries who happen to be quite high up in terms of PC2. Kigali is a vibrant start-up scene with hipster coffeeshops nowadays, as rumours say, which could relate to the UK government's interest in sending people there.
 
-along the 2 main PCs
-points close to each other share similar values as measured by the PC axes
+If two arrows are radially close to each other (that is, having similar clock-angles on the chart), it means the two original variables co-vary more closely -- if they point the same way they co-vary positively, if they point almost 180-degree opposite ways, they co-vary negatively.
 
-if two arrows are radially close to each other (that is, having similar clock-angles on the chart), it means the two original variables co-vary more closely -- if they point the same way they co-vary positively, if they point almost 180-degree opposite ways, they co-vary negatively
-
-
-we can think of the PC axes also like the arrows, if an arrow is close to parallel with an axes, its corresponding original variable is more aligned with that PC. The size of the arrow indicates how much of a PC is explained by that original variable.
-
-
-
+We can think of the PC axes also like the arrows, if an arrow is close to parallel with an axes, its corresponding original variable is more aligned with that PC. The size of the arrow indicates how much of a PC is explained by that original variable.
 
 ### Step 5
 
@@ -151,35 +160,37 @@ tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open
 > "Look at the structure and the dimensions of the data"
 
 ```{r}
-
+str(tea)
+dim(tea)
 ```
 
 > "Use View(tea) to browse its contents, and visualize the data"
 
 ```{r}
-
+# View(tea)
+# Run this for one's own viewing leisure
 ```
 
 > "Use Multiple Correspondence Analysis (MCA) on the tea data (or a subset of columns)"
 
 ```{r}
-
+library(FactoMineR)
+subset_tea <- tea[, c("Tea", "How", "how", "sugar")]
+mca <- MCA(subset_tea, graph = FALSE)
 ```
 
 > "Interpret the results of the MCA"
 
 ```{r}
-
+summary(mca)
 ```
 
 > "Draw the variable biplot of the analysis"
 
 ```{r}
-
+plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
 ```
 
 > "Comment on the output of the plots"
 
-```{r}
-
-```
+I can comment that it is indeed news to me that Earl Grey can also go with lemon. It's quite expected that green tea does not go with milk like Earl Grey or black tea does, but I'm curious to find out what that "other" category might entail. Honey, perhaps? Also it's curious what tea bag plus unpackaged means, perhaps it's sometimes this sometimes that, but you can also see that for green tea drinkers, it's more easily a snobbery thing where drinking loose leaves is perceived as somehow superior than just dunking a pre-manufactured bag in hot water.
