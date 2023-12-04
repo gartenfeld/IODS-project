@@ -7,6 +7,7 @@ date()
 ```
 
 ------------------------------------------------------------------------
+## Analysis
 
 ### Step 0
 
@@ -14,33 +15,128 @@ Create this file and include it in `index.Rmd`.
 
 ### Step 1
 
+```{r}
+human <- read_csv("data/human.csv", show_col_types = FALSE)
+```
+
 > "Move the country names to rownames"
+
+```{r}
+library(tibble)
+human <- column_to_rownames(human, "Country")
+```
 
 > "Show a graphical overview of the data"
 
+```{r}
+library(GGally)
+ggpairs(human, progress = FALSE)
+```
+
 > "Show summaries of the variables in the data"
 
+```{r}
+summary(human)
+```
+
+```{r}
+library(corrplot)
+cor(human)
+```
+
+```{r}
+library(corrplot)
+correlation_matrix <- cor(human) %>% round(digits = 2)
+corrplot(correlation_matrix, method="circle", diag = FALSE, type = 'lower')
+```
+
 > "Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them"
+
+<Interpretations>
 
 ### Step 2
 
 > "Perform principal component analysis (PCA) on the raw (non-standardized) human data"
 
+```{r}
+pca_human <- prcomp(human)
+```
+
 > "Show the variability captured by the principal components"
 
+```{r}
+summary(pca_human)
+```
+
 > "Draw a biplot displaying the observations by the first two principal components along with arrows representing the original variables"
+
+```{r warning = FALSE}
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
 
 ### Step 3
 
 > "Standardize the variables in the human data and repeat the above analysis"
 
-> "Interpret the results of both analysis (with and without standardizing)" *"Are the results different? Why or why not?"*
+```{r}
+human_standardised <- scale(human)
+```
 
-> "Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to"
+```{r}
+pca_human_standardised <- prcomp(human_standardised)
+```
+
+```{r}
+summary(pca_human_standardised)
+```
+
+```{r}
+biplot(pca_human_standardised, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+> "Interpret the results of both analysis (with and without standardizing)" 
+
+*"Are the results different? Why or why not?"*
+
+<Interpretations>
+
+the unscaled plots are virtually unreadable
+
+
+> "Include captions (brief descriptions) in your plots"
+
+```{r}
+biplot(pca_human_standardised, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+legend("bottomright", legend = c(
+"Life.Exp: Life Expectancy ",
+"Edu.Exp: Expected Years of Education ",
+"GNI: Gross National Income",
+"Mat.Mor: Maternal Mortality Ratio",
+"Ado.Birth: Adolescent Birth Rate",
+"Parli.F: Percentage of Women in Parliament",
+"Edu2.FM: Female-to-Male Ratio of Secondary Education",
+"Labo.FM: Female-to-Male Ratio of Labor Force Participation"
+), cex = 0.2)
+```
 
 ### Step 4
 
 > "Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data"
+
+The principal components can sometimes be hidden factors that do not directly map to a known concept. One can only make rough guesses what kinds of qualities the axes may correspond to, based on heuristics (namely generalisation from pre-loaded perception).
+
+points are observations
+
+along the 2 main PCs
+points close to each other share similar values as measured by the PC axes
+
+if two arrows are radially close to each other (that is, having similar clock-angles on the chart), it means the two original variables co-vary more closely -- if they point the same way they co-vary positively, if they point almost 180-degree opposite ways, they co-vary negatively
+
+
+we can think of the PC axes also like the arrows, if an arrow is close to parallel with an axes, its corresponding original variable is more aligned with that PC. The size of the arrow indicates how much of a PC is explained by that original variable.
+
+
+
 
 ### Step 5
 
@@ -50,14 +146,38 @@ Create this file and include it in `index.Rmd`.
 tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
 ```
 
-> "Explore the data briefly: look at the structure and the dimensions of the data"
+> "Look at the structure and the dimensions of the data"
+
+```{r}
+
+```
 
 > "Use View(tea) to browse its contents, and visualize the data"
 
+```{r}
+
+```
+
 > "Use Multiple Correspondence Analysis (MCA) on the tea data (or a subset of columns)"
+
+```{r}
+
+```
 
 > "Interpret the results of the MCA"
 
+```{r}
+
+```
+
 > "Draw the variable biplot of the analysis"
 
+```{r}
+
+```
+
 > "Comment on the output of the plots"
+
+```{r}
+
+```
