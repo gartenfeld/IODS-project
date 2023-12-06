@@ -1,0 +1,17 @@
+# Week 6
+
+*This week we follow through the examples in Exercise Set 6.*
+
+```{r}
+date()
+```
+
+## Analysis
+
+### Part A
+
+> "Implement the analyses of Chapter 8 of MABS ... but using the RATS data"
+
+### Part B
+
+> "Implement the analyses of Chapter 9 of MABS ... but using the BPRS data"
