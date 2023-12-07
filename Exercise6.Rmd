@@ -46,7 +46,7 @@ that although simple the method should be used only in the initial stage
 of dealing with the data; more appropriate methods will be discussed in
 part II.
 
-In the first part we will dwelve in to the BPRS data, in which 40 male
+In the first part we will delve in to the BPRS data, in which 40 male
 subjects were randomly assigned to one of two treatment groups and each
 subject was rated on the brief psychiatric rating scale (BPRS) measured
 before treatment began (week 0) and then at weekly intervals for eight
