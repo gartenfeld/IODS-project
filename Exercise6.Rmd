@@ -36,24 +36,29 @@ below.
 
 Many studies in the behavioral sciences involve several measurement or
 observations of the response variable of interest on each subject in the
-study. For example, the response variable may be measured under a number
-of different experimental conditions or on a number of different
-occasions over time; such data are labelled repeated measures or
-*longitudinal data*. In the first part (I) of these exercises useful
-methods for the graphical exploration of this type of data are described
-and a simple method for their analysis are introduced, with the warning
-that although simple the method should be used only in the initial stage
-of dealing with the data; more appropriate methods will be discussed in
-part II.
+study.
+
+For example, the response variable may be measured under a number of
+different experimental conditions or on a number of different occasions
+over time; such data are labelled repeated measures or *longitudinal
+data*.
+
+In the first part (I) of these exercises useful methods for the
+graphical exploration of this type of data are described and a simple
+method for their analysis are introduced, with the warning that although
+simple the method should be used only in the initial stage of dealing
+with the data; more appropriate methods will be discussed in part II.
 
 In the first part we will delve in to the BPRS data, in which 40 male
 subjects were randomly assigned to one of two treatment groups and each
 subject was rated on the brief psychiatric rating scale (BPRS) measured
 before treatment began (week 0) and then at weekly intervals for eight
-weeks. The BPRS assesses the level of 18 symptom constructs such as
-hostility, suspiciousness, hallucinations and grandiosity; each of these
-is rated from one (not present) to seven (extremely severe). The scale
-is used to evaluate patients suspected of having schizophrenia.
+weeks.
+
+The BPRS assesses the level of 18 symptom constructs such as hostility,
+suspiciousness, hallucinations and grandiosity; each of these is rated
+from one (not present) to seven (extremely severe). The scale is used to
+evaluate patients suspected of having schizophrenia.
 
 ```{r, echo=FALSE}
 # Pre-exercise-code (Run this code chunk first! Do NOT edit it.)
@@ -86,34 +91,41 @@ BPRS <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/MABS/maste
 names(BPRS)
 
 # Look at the structure of BPRS
-
+str(BPRS)
 
 # Print out summaries of the variables
-
+summary(BPRS)
 
 
 ```
 
 ## 6.2 Graphical displays of longitudinal data: The magical pivot_longer()
 
-To be able to study the possible differences in the bprs value between
+To be able to study the possible differences in the BPRS value between
 the treatment groups and the possible change of the value in time, we
-don't want the weeks to be individual variables. The `pivot_longer()`
-function is used to transform the dataset accordingly.
+don't want the weeks to be individual variables.
+
+The `pivot_longer()` function is used to transform the dataset
+accordingly.
 
 The `pivot_longer()` function takes multiple columns and collapses them
 into key-value pairs, so that we can have the weeks as values of a new
-variable week. You can find more information about pivot_longer in the
-package documentation with `?pivot_longer` or in the dplyr cheatsheet.
+variable week.
+
+You can find more information about pivot_longer in the package
+documentation with `?pivot_longer` or in the dplyr cheatsheet.
 
 Our `weeks` are in a bit inconvenient form as characters, so we somehow
 need to extract the week numbers from the character vector `weeks`.
 
 With the `substr()` function we can extract a part of longer character
-object. We simply supply it with a character object or vector, *start
-position*, as in the position of the first letter to extract, and *stop
-position*, as in the position of the last letter to extract. For example
-`substr("Hello world!", 1, 5)` would return "Hello".
+object.
+
+We simply supply it with a character object or vector, *start position*,
+as in the position of the first letter to extract, and *stop position*,
+as in the position of the last letter to extract.
+
+For example `substr("Hello world!", 1, 5)` would return "Hello".
 
 The `arrange()` function is also used for information purposes although
 it is not necessary for the analyses: it simply allows the final table
@@ -161,7 +173,7 @@ BPRSL <-  pivot_longer(BPRS, cols = -c(treatment, subject),
 
 # Extract the week number
 BPRSL <-  BPRSL %>% 
-            mutate(week = as.integer(substr("change me!")))
+            mutate(week = as.integer(substr(weeks, 5, 5)))
 
 # Take a glimpse at the BPRSL data
 glimpse(BPRSL)
@@ -213,7 +225,7 @@ rm(BPRS)
 library(ggplot2)
 
 # Draw the plot
-ggplot(BPRSL, aes(x = "change me!", y = "change me too!", linetype = subject)) +
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
   geom_line() +
   scale_linetype_manual(values = rep(1:10, times=4)) +
   facet_grid(. ~ treatment, labeller = label_both) +
@@ -272,8 +284,8 @@ library(dplyr)
 library(tidyr)
 # Standardise the variable bprs
 BPRSL <- BPRSL %>%
-  group_by("change me!") %>%
-  mutate(stdbprs = "change me!") %>%
+  group_by("week") %>%
+  mutate(stdbprs = (bprs - mean(bprs))/sd(bprs)) %>%
   ungroup()
 
 # Glimpse the data
@@ -342,11 +354,11 @@ Hint: - Calculate the summary variables `mean` and `se` inside the
 n <- 20
 
 library(dplyr)
-library(tidyr)
+
 # Summary data with mean and standard error of bprs by treatment and week 
 BPRSS <- BPRSL %>%
   group_by(treatment, week) %>%
-  summarise( mean = "change me!", se = "change me!" ) %>%
+  summarise( mean = mean(bprs), se = sd(bprs) / sqrt(length(bprs)) ) %>%
   ungroup()
 
 # Glimpse the data
