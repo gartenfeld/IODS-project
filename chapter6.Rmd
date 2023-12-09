@@ -205,7 +205,7 @@ Here the results are a bit baffling, baseline is highly significant, meaning tha
 
 Whereas, the diet is just about above the 0.05 threshold for significant, in over-generalised summary: diet doesn't matter.
 
-For future research, perhaps the relative gains in weight could be modelled.
+For future research, perhaps the relative gains in weight could be modelled, which, I guess, was pretty much what the original Part II in the exercise set with random intercepts method was about.
 
 #### Interpretations: Part A
 
@@ -217,8 +217,109 @@ Even though the empirical evidence and analysis and plots pretty much tell the s
 
 > "Implement the analyses of Chapter 9 of MABS ... but using the BPRS data"
 
-```{r}
+> "Factor variables"
 
+```{r}
+BPRS$treatment <- factor(BPRS$treatment)
+BPRS$subject <- factor(BPRS$subject)
 ```
+
+> "Glimpse the data"
+
+```{r}
+glimpse(BPRS)
+```
+> "Check the dimensions of the data"
+
+```{r}
+dim(BPRS)
+```
+
+> "Plot the data"
+
+```{r}
+ggplot(BPRS, aes(x = week, y = bprs, group = subject)) +
+  geom_line(aes(col = subject), alpha = 0.5) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  scale_x_continuous(name = "Week") + 
+  scale_y_continuous(name = "Score") +
+  theme(legend.position = "none")
+```
+
+> "Create a regression model"
+
+```{r}
+BPRS_regression_model <- lm(bprs ~ week + treatment, data = BPRS)
+summary(BPRS_regression_model)
+```
+
+Intercept is like the starting point, the `week` has an estimate of -2.27, meaning score decreases by 2 points per week.
+
+Being in a different treatment group doesn't seem to do much (p = 0.661).
+
+> "Create a random intercept model"
+
+```{r}
+library(lme4)
+BPRS_RI_model <- lmer(bprs ~ week + treatment + (1 | subject), data = BPRS, REML = FALSE)
+summary(BPRS_RI_model)
+```
+
+> "Create a random intercept and random slope model"
+
+```{r}
+BPRS_RI_RS_model <- lmer(bprs ~ week + treatment + (week | subject), data = BPRS, REML = FALSE)
+summary(BPRS_RI_RS_model)
+```
+
+> "Perform an ANOVA test on the two models"
+
+```{r}
+anova(BPRS_RI_RS_model, BPRS_RI_model)
+```
+
+Comments: Including a random slope within subjects significantly improves the model fit compared to a model with only a random intercept.
+
+
+> "Create a random intercept and random slope model with the interaction"
+
+```{r}
+BPRS_interaction <- lmer(bprs ~ week * treatment + (week | subject), data = BPRS, REML = FALSE)
+summary(BPRS_interaction)
+```
+
+Compare new best to old best:
+
+```{r}
+anova(BPRS_interaction, BPRS_RI_RS_model)
+```
+
+Nah, not better enough.
+
+> "Create a vector of the fitted values"
+
+```{r}
+Fitted <- fitted(BPRS_interaction)
+```
+
+> "Create a new column `fitted`"
+
+```{r}
+BPRS_fitted <- mutate(BPRS, Fitted = Fitted)
+```
+
+> "Draw the plot with the Fitted scores"
+
+```{r}
+library(ggplot2)
+ggplot(BPRS_fitted, aes(x = week, y = Fitted, group = subject)) +
+  geom_line(aes(col = subject)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  scale_x_continuous(name = "Week") +
+  scale_y_continuous(name = "Fitted BPRS") +
+  theme(legend.position = "none")
+```
+
+So many models, it's a spaghetti plot.
 
 #### Interpretations: Part B
