@@ -1,4 +1,4 @@
-# Week 6
+# Week 6 Longitudinal Analysis
 
 *This week we follow through the examples in Exercise Set 6.*
 
@@ -8,10 +8,217 @@ date()
 
 ## Analysis
 
+Read in the transformed datasets:
+
+```{r}
+library(readr)
+BPRS <- read_csv("data/BPRS_long.csv", show_col_types = FALSE)
+RATS <- read_csv("data/RATS_long.csv", show_col_types = FALSE)
+```
+
 ### Part A
 
 > "Implement the analyses of Chapter 8 of MABS ... but using the RATS data"
 
+> "Look at the (column) names"
+
+```{r}
+names(RATS)
+```
+
+> "Look at the structure"
+
+```{r}
+str(RATS)
+```
+
+> "Print out summaries of the variables"
+
+```{r}
+summary(RATS)
+```
+
+> Convert categorical columns to factor
+
+```{r}
+RATS$ID <- factor(RATS$ID)
+RATS$Group <- factor(RATS$Group)
+```
+
+> "Take a glimpse at the data"
+
+```{r}
+library(dplyr)
+glimpse(RATS)
+```
+
+> "Draw the plot"
+
+```{r}
+library(ggplot2)
+rat_count <- length(unique(RATS$ID))
+colour_palette <- sample(rainbow(rat_count))
+range <- c(min(RATS$Weight), max(RATS$Weight))
+ggplot(RATS, aes(x = Time, y = Weight)) +
+#  geom_smooth(aes(color = ID), method = "loess", se = FALSE) +
+  geom_line(aes(color = ID)) +
+  scale_color_manual(values = colour_palette) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = range)
+```
+
+> "Standardise the variable"
+
+```{r}
+Standardised_RATS <- RATS %>%
+  group_by(Time) %>%
+  mutate(Standardised_Weight = (Weight - mean(Weight))/sd(Weight)) %>%
+  ungroup()
+```
+
+> "Glimpse the data"
+
+```{r}
+glimpse(Standardised_RATS)
+```
+
+> "Plot again with the standardised values"
+
+```{r}
+library(ggplot2)
+rat_count <- length(unique(Standardised_RATS$ID))
+colour_palette <- sample(rainbow(rat_count))
+range <- c(min(Standardised_RATS$Standardised_Weight), max(Standardised_RATS$Standardised_Weight))
+ggplot(Standardised_RATS, aes(x = Time, y = Standardised_Weight)) +
+  geom_line(aes(color = ID)) +
+  scale_color_manual(values = colour_palette) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = range, name = "Standardised Weight")
+```
+
+> Summarise data with mean and standard error of Weight by Group and Time"
+
+```{r}
+Summarised_RATS <- RATS %>%
+  group_by(Group, Time) %>%
+  summarise( mean = mean(Weight), se = sd(Weight) / sqrt(length(Weight)) ) %>%
+  ungroup()
+```
+
+> "Glimpse the data"
+
+```{r}
+glimpse(Summarised_RATS)
+```
+
+> "Plot the mean profiles"
+
+```{r}
+ggplot(Summarised_RATS, aes(x = Time, y = mean)) +
+  geom_line(aes(color = Group)) +
+  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = Group), alpha = 0.2) +
+  scale_y_continuous(name = "Weight")
+```
+
+> Check for outliers
+
+> "Create summary data by Group and ID with mean as the summary variable
+
+```{r}
+RATS_box <- RATS %>%
+  filter(Time > 0) %>%
+  group_by(Group, ID) %>%
+  summarise( mean=mean(Weight) ) %>%
+  ungroup()
+```
+
+> "Glimpse the data"
+
+```{r}
+glimpse(RATS_box)
+```
+
+> "Draw a boxplot of the mean"
+
+```{r}
+ggplot(RATS_box, aes(x = Group, y = mean, fill = Group)) +
+  geom_boxplot(alpha = 0.2, width = 0.2) +
+  scale_y_continuous(name = "Mean Weight")
+```
+
+Comments: there is a fat rat in Group 2 but it's not all that extreme.
+
+Try a filtered plot anyway:
+
+```{r}
+Group_2_filtered <- RATS_box %>%
+  filter(mean < 550, Group == 2)
+
+ggplot(Group_2_filtered, aes(y = mean, x = Group)) +
+  geom_boxplot(width = 0.1) +
+  scale_y_continuous(name = "Mean Weight")
+```
+
+> "Perform a two-sample t-test"
+
+```{r}
+# Since the rats fall into 3 groups, let's try testing only the first two
+rats_1_2 <- subset(RATS_box, Group %in% c(1, 2))
+t.test(mean ~ Group, data = rats_1_2, var.equal = TRUE)
+```
+
+This reiterates what's visible from the box plot, Group 1 & 2 are very different
+
+Check Group 2 & 3, which are closer to each other:
+
+```{r}
+rats_2_3 <- subset(RATS_box, Group %in% c(2, 3))
+t.test(mean ~ Group, data = rats_2_3, var.equal = TRUE)
+```
+
+Due to the low number of rats in each group, we can't be sure they are materially different.
+
+Add a baseline column for the starting weight
+
+```{r}
+RATS_wide <- read_csv("data/RATS_wide.csv", show_col_types = FALSE)
+RATS_based <- RATS_box %>%
+  mutate(baseline = RATS_wide$WD1)
+```
+
+> "Fit a model"
+
+```{r}
+fit <- lm(mean ~ baseline + Group, data = RATS_based)
+summary(fit)
+```
+
+> "Compute the ANnalysis Of VAriance table for the fitted model"
+
+```{r}
+anova(fit)
+```
+
+Here the results are a bit baffling, baseline is highly significant, meaning that the rat's starting weight explains its future weight.
+
+Whereas, the diet is just about above the 0.05 threshold for significant, in over-generalised summary: diet doesn't matter.
+
+For future research, perhaps the relative gains in weight could be modelled.
+
+#### Interpretations: Part A
+
+Even though the empirical evidence and analysis and plots pretty much tell the story already, I will nonetheless repeat it here with words so as to satisfy the requirements of having interpretations.
+
+
+
 ### Part B
 
 > "Implement the analyses of Chapter 9 of MABS ... but using the BPRS data"
+
+```{r}
+
+```
+
+#### Interpretations: Part B
