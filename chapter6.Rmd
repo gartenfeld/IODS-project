@@ -211,7 +211,13 @@ For future research, perhaps the relative gains in weight could be modelled, whi
 
 Even though the empirical evidence and analysis and plots pretty much tell the story already, I will nonetheless repeat it here with words so as to satisfy the requirements of having interpretations.
 
+Once upon a time, 16 rats lived happily in a lab where they were housed and fed. They were divided into three groups and each group had a different diet. The first group was larger than the other two, which had 8 rats, whereas the second and third group each had 4 rats. For some unknown reason, the first group of rats were all smaller, none of them weight more than 300 grams at the start. Maybe they were in an earlier life stage, maybe they came from a family of light-weighted rats, unlikely, but nobody knows. Rats in the second group all weighed over 400 grams at the start, and most rats in the third group weighed over 500 grams at the start.
 
+The rats were put on different diets and weighed weekly over the course of 64 days, except during the 6th week they were weighed twice. Over time, practically every rat gained weight. We can see from the slopes of the lines comparing the three groups that the first group of smaller rats gained weight at a slower rate compare to the other two groups of larger rats.
+
+It's tricky for statistical analysis when the starting point of the groups are so different, so most of the differences are explained by the baseline already. From the two-way t-test analysis, it restates the obvious that Group 1 is very different from Group 2: p = 4.059e-06. This doesn't really tell us anything new. Whereas, it's hard to say whether the diet made any difference between Group 2 and Group 3: p = 0.3101. For one thing, there are only 4 rats in each group, then, there's a really fat rat in Group 2, who weighed more than any other rat, even though rats in Group 2 were otherwise smaller than those in Group 3. So the intra-group variation is so huge, it shrouds the effect between groups.
+
+Then, with multi-way ANOVA on the three groups and baseline, we can see that the baseline had extremely significant influence on the differences: p = 5.217e-15, whereas being in a different group and on a different diet was not even considered significant enough in the conventional sense: p = 0.07586.
 
 ### Part B
 
@@ -229,6 +235,7 @@ BPRS$subject <- factor(BPRS$subject)
 ```{r}
 glimpse(BPRS)
 ```
+
 > "Check the dimensions of the data"
 
 ```{r}
@@ -280,7 +287,6 @@ anova(BPRS_RI_RS_model, BPRS_RI_model)
 
 Comments: Including a random slope within subjects significantly improves the model fit compared to a model with only a random intercept.
 
-
 > "Create a random intercept and random slope model with the interaction"
 
 ```{r}
@@ -323,3 +329,22 @@ ggplot(BPRS_fitted, aes(x = week, y = Fitted, group = subject)) +
 So many models, it's a spaghetti plot.
 
 #### Interpretations: Part B
+
+In this part with the BPRS data the idea is to track the Brief Psychiatric Rating Scale scores of participant over time. 40 men were divided into two treatment groups of 20 each. Sometimes the treatment groups are divided into treatment vs. control, but in one aspect of the double-blind setup it's not revealed which group is the control. Or, gauging from the sloping trends in both groups, it's possible they both received some type of intervention. Or, it could be placebo.
+
+Here the main idea of experimental science is to find evidence whether an intervention has an effect or not. This entails laborious work: recruiting participants, getting all the procedural things in line, collect recordings every week, and so on. All this to create the dataset of a small table. Now that part of the hard work is done, we are doing the easy part of analysing the data to test if there's an effect. This is made easier still with R and off-the-shelf packages for statistics.
+
+What's nice about this part of the exercises is that we create multiple models, adding more complexity to account for possible underlying phenomena. Then, we can directly use ANOVA to see if the model got better. And a computer does this with lightening speed!
+
+We can see that starting from a naïve linear regression model that the most influential factor is the passage of time. Time does heal all ills! Regardless of being in which treatment group, with each week the score decreases by about 2 points.
+
+Then, with the mixed-effect models, we account for the hidden factors within each participant (i.e. continuity in personality) that explains the trajectory over time. The random effects show the variability in the intercepts among different subjects. The negative correlation between the intercept and time suggests that subjects with higher intercepts tend to have a steeper decline in the score. So those with higher BPRS to start with seem to benefit more from the intervention.
+
+The ANOVA performed on the models indicated that the model with both random slope and random intercept is significantly better than the model with only random intercept: p = 0.02636. The model with added interaction is not significantly better than the model with random slope and intercept: p = 0.07495.
+
+From the chart of the fitted lines we can visually confirm patterns described above: in both groups, participants experienced reduction of BPRS score over time. A few participants who started with very high scores got the most noticeable effects from the intervention, in both groups. The rate of change varies between individuals, ignoring the extremes, it's not instantly clear to spot the inverse correlation between intercept and slope, what we would expect to see there would be lines spaced apart, all sloping down, with wider gaps on the left and narrow gaps on the right. It is also not obvious how the treatment differs in terms of outcomes.
+
+--- 
+
+#### Thank you for join the journey of this course!
+
